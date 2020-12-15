@@ -38,7 +38,7 @@ exports.SignIn = (req, res) => {
         })
     }
     User.findOne({ email }, (error, user) => {
-        if (error) {
+        if (error || !user) {
             console.log(error)
             return res.status(400).json({
                 error: "Email doesn't exist"
@@ -52,6 +52,7 @@ exports.SignIn = (req, res) => {
         }
         // CREATE TOKEN
         const token = jwt.sign({ _id: user._id }, process.env.SECRET)
+        // sign method uses default algorithm ['HS256']
         // PUT TOKEN IN COOKIE
         res.cookie("token", token, { expire: new Date() + 9999 })
         // RESPONSE TO FRONTEND
@@ -67,9 +68,39 @@ exports.SignIn = (req, res) => {
 }
 
 exports.SignOut = (req, res) => {
+    res.clearCookie("token")
     res.json({
-        message: "This is a Testing   API",
+        message: "User SignOut Successfully",
         status: "OK"
     })
 
+}
+
+
+// Protected Routes
+exports.isSignedIn = expressJwt({
+    secret: process.env.SECRET,
+    userProperty: "auth",
+    algorithms: ['HS256']
+})
+
+
+// Custom middlewares
+exports.isAuthenticated = (req, res, next) => {
+
+    let checker = req.profile && req.auth && req.profile._id === auth._id
+    if (!checker) {
+        return res.status(403).json({
+            error: "Access Denied"
+        })
+    }
+    next();
+}
+exports.isAdmin = (req, res, next) => {
+    if (req.profile.role === 0) {
+        return res.status(403).json({
+            error: "Access Denied"
+        })
+    }
+    next();
 }
