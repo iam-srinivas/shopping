@@ -7,6 +7,7 @@ const cors = require('cors')
 const app = express()
 const authRoutes = require("./routes/auth")
 const userRoutes = require("./routes/user")
+const categoryRoutes = require("./routes/category")
 
 
 // DB CONNECTION
@@ -29,11 +30,12 @@ app.use(cors());
 // ROUTES
 app.use("/api", authRoutes)
 app.use("/api", userRoutes)
+app.use("/api", categoryRoutes)
 
 // PORT
 const port = process.env.PORT || 8000
 
 // STARTING SERVER
 app.listen(port, () => {
-    console.log("Server is Running")
+    console.log("Server is Running on Port", port)
 })
