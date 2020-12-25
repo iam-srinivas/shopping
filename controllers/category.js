@@ -2,14 +2,15 @@ const Category = require('../models/category')
 
 exports.getCategorybyId = (req, res, next, id) => {
     Category.findById(id).exec((error, category) => {
-        if (error) {
-            res.status(400).json({
+        if (error || !category) {
+            return res.status(400).json({
                 error: "Category Not Found"
             })
         }
         req.category = category
+        next();
+
     })
-    next();
 }
 
 
@@ -22,6 +23,7 @@ exports.createCategory = (req, res) => {
             })
         }
         res.json({ category })
+        // if used {} it will create object with key category:{}
     })
 }
 
